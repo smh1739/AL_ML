@@ -1,22 +1,30 @@
-# Bayesian Black-Box Optimization Capstone
+# Bayesian Black-Box Optimization Capstone — Stage 2
 
-This repository contains the ongoing work for the Bayesian Black-Box Optimization (BBO) capstone project. The general goal is to optimize eight unknown synthetic "black-box" functions which mirror real-world problems where underlying structural mechanisms are hidden or overly complicated, requiring targeted observations to maximize results.
+This repository serves as the documented record for **Stage 2** of the Bayesian Black-Box Optimization (BBO) capstone project. 
 
-## Project Methodology & Reflection
+## Project Purpose & Objectives
+The central objective of this project is to reliably find the maximum outputs for eight synthetic, unknown "black-box" functions. In real-world machine learning contexts, we often encounter scenarios—such as drug formulation testing or hyperparameter tuning—where evaluating a solution is incredibly slow or computationally expensive. By treating these 8 functions as opaque processes, this capstone simulates those real-world constraints. The objective is to efficiently locate the absolute peak performance for each mathematical system while conducting as few external queries as possible.
 
-### Weeks 1 & 2: Manual Exploration & Heuristics
-Initially, with only 10-40 starting data points per function, the mathematical models were found to be highly uncertain. The approach for Week 1 focused heavily on **diversity-driven exploration**, manually targeting unrepresented regions scattered across the `[0, 1]` domain while avoiding extreme boundaries. The higher-dimensional functions proved to be the most challenging to conceptually query without explicitly formal signals given the massive sparsity of the space.
+## Data Structure: Inputs and Outputs
+The functions dynamically range in structural complexity, spanning from highly simple 2-dimensional boundaries up to incredibly complex 8-dimensional hyperspaces. 
+- **Inputs**: Array vectors constrained identically between `[0.000000, 0.999999]` across $D$ dimensions.
+- **Outputs**: A single floating-point objective scalar denoting the evaluated yield (which may naturally be negative or positive depending on internal penalties).
+Data histories are accumulated locally as NumPy (`.npy`) tensors and updated iteratively upon processing new feedback.
 
-In Week 2, the approach transitioned to a **mixed exploration-exploitation strategy**. Functions that previous returned strong outputs (e.g., Functions 5 and 8) were targeted for early exploitation using controlled value perturbations, while poorer performing functions (e.g., Functions 1, 3, 4, and 6) were allocated continued exploration to escape non-productive local valleys. 
+## Technical Approach & Methodological Insights
 
-### Week 3+: Formalizing Bayesian Optimization
-Because the true output boundaries are highly curved, non-linear, and multi-modal, simpler linear regression approximations violate spatial assumptions. Having accumulated a critical baseline of manual probing data, the project logically hands the reins to automated Bayesian Optimization. 
+### Theoretical Context: Regression, SVMs, and Bayesian Modeling
+When attempting to map a complex space, traditional supervised models run into limits. Mapping highly curved, non-linear, and multi-modal boundaries severely violates the core assumptions of classical **Linear Regression** or threshold-based **Logistic Regression**. While more advanced approaches like **Support Vector Machines (SVMs)** utilizing custom kernels might successfully navigate non-linear spaces locally, they aren't inherently structured for uncertainty quantification—which is the single most essential requirement for weighing exploration versus exploitation inside severely data-starved setups.
 
-By aggressively leveraging Surrogate Models (**Gaussian Processes** with a Matern Kernel) and Acquisition Functions (**Expected Improvement**), we can intuitively and mathematically track the maximal points for all 8 functions far more reliably than manual exploration across the more complex 2D-8D spaces.
+Because we are restricted to only ~10-40 baseline evaluation points initially, the project pivots optimally toward formally structured **Bayesian Optimization**. By leveraging Surrogate Models (**Gaussian Processes** equipped with a non-linear Matern Kernel) we derive a robust probabilistic representation. The algorithm outputs not just a predicted mean, but a variance vector (uncertainty representation) allowing an Acquisition Function (**Expected Improvement**) to systematically evaluate whether to aggressively exploit known peaks or safely explore totally unknown valleys. 
+
+### Iterative Process & Progress (Weeks 1-3+)
+This capstone is fundamentally grounded in **iterative modelling**:
+1. **Weeks 1 & 2 (Manual Heuristics)**: Because the initial baseline models were highly uncertain and unstable, early query choices relied heavily on structured, diversity-driven manual exploration. Weak signals on specific datasets (Functions 5 and 8) allowed for targeted perturbation-based exploitation, but higher dimensional distributions largely resisted unstructured guessing.
+2. **Stage 2 / Week 3+ (Algorithmic Shift)**: Having manually accumulated enough iterative feedback to establish a foundational signal landscape across the 8 models, we subsequently shifted directly into the automated Gaussian Process architecture mapped in our repository. This allows the sophisticated mathematics to iteratively update the surrogate model upon each submission, making the search for the absolute maxima significantly more informed and statistically targeted.
 
 ## Structure and Reproducibility 
-The codebase is centered around reproducibility and iterative data addition.
-
-- `Bayesian_Optimization_Workflow.ipynb`: Core logic utilizing `scikit-learn` for our formalized Bayesian Optimization.
-- `data/`: Contains `.npy` arrays with our historical queries, though these are externally referenced as they are not committed to Git.
-- `Datasheet.md` & `Model_Card.md`: Outlines assumptions and limitations regarding the data sets and mathematical models.
+- `Bayesian_Optimization_Workflow.ipynb`: Core Python logic utilizing `scikit-learn` for our formalized Bayesian Optimization iterations.
+- `execute_bbo.py`: Clean executable mirror to the notebook logic for pipeline automation.
+- `data/`: Local directory housing `.npy` arrays containing historical query matrices (ignored by version control to avoid pushing raw data structures).
+- `Datasheet.md` & `Model_Card.md`: Outlines assumptions and limitations regarding the datasets and surrogate boundaries.
