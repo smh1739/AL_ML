@@ -6,3 +6,6 @@ data/**/*.npy
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+
+# Virtual Environment
+.venv/
