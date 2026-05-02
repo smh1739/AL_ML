@@ -1,0 +1,8 @@
+# Ignore dataset arrays
+data/**/*.npy
+*.npy
+
+# General python artifacts
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
